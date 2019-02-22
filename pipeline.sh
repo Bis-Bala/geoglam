@@ -53,7 +53,7 @@ mkdir -p $FC_OUTPUT/h${H}v${V}.$i
 FREEMEM=$(free -k|grep 'cache:'|awk '{print $4}')
 N_JOBS=$(echo "$FREEMEM/(4.5*1024^2)"|bc)
 
-UPDATE_FILE=$(python fc_prod/get_update_file.py $PACKED_OUTPUT $i $H $V --version $VER)
+UPDATE_FILE=$($PYTHON fc_prod/get_update_file.py $PACKED_OUTPUT $i $H $V --version $VER)
 seq 1 12|$PARALLEL -j$N_JOBS -k --joblog $FC_LOGS/h${H}v${V}.$i.parjob.log \
      $PYTHON fc_prod/main.py /g/data2/u39/public/data/modis/lpdaac-tiles-c6/ $i {} $H $V $FC_OUTPUT \
      --update_file $UPDATE_FILE --version $VER
@@ -96,7 +96,7 @@ fi
 if [[ "$CHECKPOINT" = 'all_agg' ]] || [[ "$CHECKPOINT" = 'combine_mean_diff' ]]; then
 echo 'combine monthly mean differences'
 $PYTHON anomaly_detection/combine_outputs.py $PACKED_OUTPUT ${ANOMALY_MEAN_DIFF_TMP_OUTPUT} $H $V \
-    $INIT_YEAR $CURR_YEAR $ANOMALY_MEAN_DIFF_OUTPUT Mean_Diff f4 --version $VER
+    $INIT_YEAR $CURR_YEAR $ANOMALY_MEAN_DIFF_OUTPUT Mean_Diff i1 --version $VER
 
 date "+%Y-%m-%d %H:%M:%S"
 echo __checkpoint_combine_mean_diff
