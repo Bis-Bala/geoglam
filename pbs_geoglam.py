@@ -23,7 +23,7 @@ script = '''
 #PBS -N geoglam_h{h}v{v}
 #PBS -P {project} 
 #PBS -q normal
-#PBS -l walltime=20:00:00
+#PBS -l walltime=01:00:00
 #PBS -l mem=64GB
 #PBS -l ncpus=12
 #PBS -o {log_dir}

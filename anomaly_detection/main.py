@@ -135,8 +135,9 @@ def compute_mean_diff(data):
     mean_data = data_sum / counts
     diff = data - mean_data
     nan_masks = np.isnan(diff) | np.isinf(diff)
-    diff[nan_masks] = 255
-    diff[~masks] = 255
+    diff[nan_masks] = 127 
+    diff[~masks] = 127
+    diff = np.round(diff).astype(np.int8)
     
     return diff
                 
@@ -202,7 +203,7 @@ def compute_by_month(src_root_filename, raw_src_file_list, month, mean_diffs_out
             output_filename, 
             np.expand_dims(pv_mean_diff[i_src, ...], 0), 
             np.expand_dims(npv_mean_diff[i_src, ...], 0), 
-            np.expand_dims(soil_mean_diff[i_src, ...], 0), 'f4', [timestamp_list[i_src], ])
+            np.expand_dims(soil_mean_diff[i_src, ...], 0), 'i1', [timestamp_list[i_src], ])
 
     pv_pct = compute_percentiles(pv_data)
     npv_pct = compute_percentiles(npv_data)
