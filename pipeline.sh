@@ -29,10 +29,11 @@ CHECKPOINT=$5
 
 BASE_OUTPUT=$6/v${VER}/tiles
 PYTHON=$7
+LOG_DIR=$8
 
 PARALLEL=utils/parallel
-FC_OUTPUT=$BASE_OUTPUT/8-day/cover/fc_outputs_tmp
-FC_LOGS=$BASE_OUTPUT/8-day/cover/fc_logs
+FC_OUTPUT=$LOG_DIR/8-day/cover/fc_outputs_tmp
+FC_LOGS=$LOG_DIR/8-day/cover/fc_logs
 PACKED_OUTPUT=$BASE_OUTPUT/8-day/cover
 MEDOIDS_OUTPUT=$BASE_OUTPUT/monthly/cover
 ANOMALY_MEAN_DIFF_OUTPUT=$BASE_OUTPUT/monthly/anomalies
@@ -66,7 +67,6 @@ done
 date "+%Y-%m-%d %H:%M:%S"
 echo __checkpoint_fc_prod
 fi
-
 
 if [[ "$CHECKPOINT" = 'all_agg' ]] || [[ "$CHECKPOINT" = 'medoids' ]]; then
 FREEMEM=$(free -k|grep 'cache:'|awk '{print $4}')

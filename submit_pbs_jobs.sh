@@ -19,11 +19,11 @@ set -x
 set -u
 
 NCI_PROJECT=fr1
-BASE_DIR=/g/data2/fr1/modis-fc/native_frac/geoglam/geoglam_data
-DATA_DIR=$BASE_DIR/data
+BASE_DIR=/g/data2/fr1/bb8204/geoglam/geoglam_data
+DATA_DIR=/g/data2/tc43/modis-fc
 LOG_DIR=$BASE_DIR/logs
 
-PATH="/g/data2/fr1/modis-fc/native_frac/geoglam/miniconda/bin":$PATH
+PATH="/g/data2/fr1/bb8204/geoglam/miniconda/bin":$PATH
 
 #cd monthly_medoids
 #../miniconda/bin/python compile_medoids.py
