@@ -96,7 +96,7 @@ fi
 if [[ "$CHECKPOINT" = 'all_agg' ]] || [[ "$CHECKPOINT" = 'combine_mean_diff' ]]; then
 echo 'combine monthly mean differences'
 $PYTHON anomaly_detection/combine_outputs.py $PACKED_OUTPUT ${ANOMALY_MEAN_DIFF_TMP_OUTPUT} $H $V \
-    $INIT_YEAR $CURR_YEAR $ANOMALY_MEAN_DIFF_OUTPUT Mean_Diff i1 --version $VER
+    $INIT_YEAR $CURR_YEAR $ANOMALY_MEAN_DIFF_OUTPUT Mean_Diff i1 --version $VER --medout $MEDOIDS_OUTPUT
 
 date "+%Y-%m-%d %H:%M:%S"
 echo __checkpoint_combine_mean_diff
@@ -106,7 +106,7 @@ fi
 if [[ "$CHECKPOINT" = 'all_agg' ]] || [[ "$CHECKPOINT" = 'combine_percentiles' ]]; then
 echo 'combine monthly percentiles'
 $PYTHON anomaly_detection/combine_outputs.py $PACKED_OUTPUT ${ANOMALY_PERCENTILE_TMP_OUTPUT} $H $V \
-    $INIT_YEAR $CURR_YEAR $ANOMALY_PERCENTILE_OUTPUT Percentile u1 --version $VER
+    $INIT_YEAR $CURR_YEAR $ANOMALY_PERCENTILE_OUTPUT Percentile u1 --version $VER --medout $MEDOIDS_OUTPUT
 
 date "+%Y-%m-%d %H:%M:%S"
 echo __checkpoint_combine_percentiles

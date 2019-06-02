@@ -101,12 +101,13 @@ def pack_data(src_filename, output_filename, pv_pct, npv_pct, soil_pct, data_typ
         var.spatial_ref = proj_wkt
         var.GeoTransform = "{} {} {} {} {} {} ".format(*[geot[i] for i in range(6)])
 
-def combine_by_month(src_root_filename, input_dir, src_file, h, v, year_start, year_end, output_dir, product_name, data_type, ver):
+def combine_by_month(src_root_filename, input_dir, src_file, h, v, year_start, year_end, output_dir, product_name, data_type, ver, med_file):
     for i_year in xrange(year_start, year_end+1):
         print 'processing year: %d' % i_year
         pv_data = npv_data = soil_data = None
         timestamp_list = []
         t0 = time.time()
+        month_count = 12
         for i_month in xrange(0, 12):
             month = i_month + 1
             year = i_year
@@ -130,9 +131,14 @@ def combine_by_month(src_root_filename, input_dir, src_file, h, v, year_start, y
                 soil = np.asarray(ds['bare_soil'][:], dtype=dtype)
 
                 if pv_data is None:
-                    pv_data = np.zeros((12, pv.shape[1], pv.shape[2]), dtype=pv.dtype)
+                    if i_year == year_end:
+                        with netCDF4.Dataset(med_file) as fs:
+                            month_count = len(fs['time'])
+                    pv_data = np.zeros((month_count, pv.shape[1], pv.shape[2]), dtype=pv.dtype)
                     npv_data = np.zeros_like(pv_data)
                     soil_data = np.zeros_like(pv_data)
+                if month_count < 12 and month > month_count:
+                    continue
 
                 pv_data[i_month, ...] = np.squeeze(pv)
                 npv_data[i_month, ...] = np.squeeze(npv)
@@ -153,6 +159,7 @@ def combine_by_month(src_root_filename, input_dir, src_file, h, v, year_start, y
 
 if __name__ == "__main__":
     #src_root_dir = '/g/data2/u39/public/prep/modis-fc/FC.v302.MCD43A4'
+    medout = '/g/data2/tc43/modis-fc/v310/tiles/monthly/cover/'
     parser = argparse.ArgumentParser(description="""Modis Vegetation Analysis argument parser""")
     parser.add_argument(dest="src_root_dir", type=str, help="Source root dir")
     parser.add_argument(dest="input_dir", type=str, help="Full path of input file")    
@@ -164,12 +171,14 @@ if __name__ == "__main__":
     parser.add_argument(dest="product_name", type=str, help="Product name")
     parser.add_argument(dest="data_type", type=str, help="Product data type")
     parser.add_argument("--version", default='310', type=str, help="Product version")
+    parser.add_argument("--medout", default=medout, type=str, help="yearly cover output to check available timestamps")
     args = parser.parse_args()
 
     src_root_dir = args.src_root_dir
     src_file = 'FC_%s.v' + args.version + '.MCD43A4.h%sv%s.%s.%s.006.nc'
+    med_file = os.path.join(medout, 'FC_Monthly_Medoid.v%s.MCD43A4.h%sv%s.%s.006.nc' %(args.version, args.h, args.v, args.year_end))
     
     src_root_filename = os.path.join(src_root_dir, 'FC.v%s.MCD43A4.h%sv%s.%s.006.nc' % (args.version, args.h, args.v, args.year_start))
-    combine_by_month(src_root_filename, args.input_dir, src_file, args.h, args.v, args.year_start, args.year_end, args.output_dir, args.product_name, args.data_type, args.version)
+    combine_by_month(src_root_filename, args.input_dir, src_file, args.h, args.v, args.year_start, args.year_end, args.output_dir, args.product_name, args.data_type, args.version, med_file)
     
 
