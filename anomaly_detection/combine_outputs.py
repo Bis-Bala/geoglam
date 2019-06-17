@@ -34,7 +34,7 @@ def get_output_filename(output_dir, source_file, year, product_name, ver):
     full_filename = os.path.join(output_dir, filename)
     return full_filename
 
-def pack_data(src_filename, output_filename, pv_pct, npv_pct, soil_pct, data_type, timestamps):
+def pack_data(src_filename, output_filename, pv_pct, npv_pct, soil_pct, cov_pct, data_type, timestamps):
     with netCDF4.Dataset(output_filename, 'w', format='NETCDF4') as dest:
         with open('nc_metadata.json') as data_file:
             attrs = json.load(data_file)
@@ -89,6 +89,11 @@ def pack_data(src_filename, output_filename, pv_pct, npv_pct, soil_pct, data_typ
         var.grid_mapping = "sinusoidal"
         var[:] = soil_pct
 
+        var = dest.createVariable("tot_cov", data_type, ("time", "y", "x"), fill_value=fill_value, zlib=True, chunksizes=(1, 240, 240))
+        var.long_name = "Total Cover"
+        var.units = '%'
+        var.grid_mapping = "sinusoidal"
+        var[:] = cov_pct
         var = dest.createVariable("sinusoidal", 'S1', ())
 
         var.grid_mapping_name = "sinusoidal"
@@ -129,6 +134,7 @@ def combine_by_month(src_root_filename, input_dir, src_file, h, v, year_start, y
                 pv = np.asarray(ds['phot_veg'][:], dtype=dtype)
                 npv = np.asarray(ds['nphot_veg'][:], dtype=dtype)
                 soil = np.asarray(ds['bare_soil'][:], dtype=dtype)
+                tot = np.asarray(ds['tot_cov'][:], dtype=dtype)
 
                 if pv_data is None:
                     if i_year == year_end:
@@ -137,12 +143,14 @@ def combine_by_month(src_root_filename, input_dir, src_file, h, v, year_start, y
                     pv_data = np.zeros((month_count, pv.shape[1], pv.shape[2]), dtype=pv.dtype)
                     npv_data = np.zeros_like(pv_data)
                     soil_data = np.zeros_like(pv_data)
+                    cov_data = np.zeros_like(pv_data)
                 if month_count < 12 and month > month_count:
                     continue
 
                 pv_data[i_month, ...] = np.squeeze(pv)
                 npv_data[i_month, ...] = np.squeeze(npv)
                 soil_data[i_month, ...] = np.squeeze(soil)
+                cov_data[i_month, ...] = np.squeeze(tot)
 
                 ts = netCDF4.num2date(ds['time'][0], ds['time'].units) 
                 timestamp_list.append(ts)
@@ -155,7 +163,7 @@ def combine_by_month(src_root_filename, input_dir, src_file, h, v, year_start, y
         
         output_filename = get_output_filename(output_dir, src_root_filename, year, product_name, ver)
         print output_filename
-        pack_data(src_root_filename, output_filename, pv_data, npv_data, soil_data, data_type, timestamp_list)
+        pack_data(src_root_filename, output_filename, pv_data, npv_data, soil_data, cov_data, data_type, timestamp_list)
 
 if __name__ == "__main__":
     #src_root_dir = '/g/data2/u39/public/prep/modis-fc/FC.v302.MCD43A4'

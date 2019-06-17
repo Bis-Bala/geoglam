@@ -94,6 +94,14 @@ def pack_data(src_filename, output_filename, arr, timestamps):
         var.grid_mapping = "sinusoidal"
         var[:] = arr[:, 2, :, :]
 
+        var = dest.createVariable("tot_cov", "u1", ("time", "y", "x"), fill_value=255, zlib=True, chunksizes=(1, 240, 240))
+        var.long_name = "Total Cover"
+        var.units = '%'
+        var.grid_mapping = "sinusoidal"
+        mx = np.ma.masked_values(arr[:, 0, :, :], 255)  + \
+                 np.ma.masked_values(arr[:, 1, :, :], 255) 
+        mx = mx.filled(255)
+        var[:] = mx
         var = dest.createVariable("sinusoidal", 'S1', ())
 
         var.grid_mapping_name = "sinusoidal"
