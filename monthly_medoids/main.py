@@ -131,7 +131,10 @@ def compute_monthly_medoid(filename, output_dir, ver):
           ts = netCDF4.num2date(ds['time'][m[-1]], ds['time'].units) 
           next_date = ts + datetime.timedelta(days=8)          
           if ts.month == next_date.month:
-            month_idx_tmp[i] = []
+              if ts.year == 2001 and ts.month == 6:
+                  print ' Problem here incomplete files but still will do '
+              else:
+                  month_idx_tmp[i] = []
 
         month_idx = [m for m in month_idx_tmp if len(m) > 0]        
         
